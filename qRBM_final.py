@@ -79,6 +79,8 @@ class qRBM:
 		# W[i][j] = ith visible to jth hidden
 		# Bias[j] = bias on jth hidden.
 
+		self.pred_list = []
+
 	def make_unclamped_QAOA(self):
 		"""
 		Internal helper function for building QAOA circuit to get RBM expectation
@@ -188,6 +190,7 @@ class qRBM:
 		assert(quantum_percentage + classical_percentage == 1.0)
 
 		DATA = np.asarray(DATA)
+        
 
 		for epoch in range(n_epochs):
 
@@ -286,6 +289,10 @@ class qRBM:
 				myfile.write(json.dumps(list(self.BIAS.tolist()))+'\n')
 				myfile.write(str('-'*80) + '\n')		
 
+			pred = self.transform(DATA)
+			self.pred_list.append(pred)
+
+
 		print ('Training Done!')
 
 
@@ -312,19 +319,19 @@ class qRBM:
 """ Simple use case example """
 
 # Setup a Rigetti qvm connection
-qvm = api.QVMConnection()
-# qvm = get_qc('9q-square-qvm')
+# qvm = api.QVMConnection()
+# # qvm = get_qc('9q-square-qvm')
 
 
-#Creat an instance of a qRBM
-r = qRBM(qvm, num_visible=4, num_hidden=1, n_quantum_measurements=None, verbose=False)
+# #Creat an instance of a qRBM
+# r = qRBM(qvm, num_visible=4, num_hidden=1, n_quantum_measurements=None, verbose=False)
 
-# simple artificially high dimensional data
-simple_data = [[1,1,-1,-1], [1,1,-1,-1], [-1,-1,1,1], [-1,-1,1,1]]
+# # simple artificially high dimensional data
+# simple_data = [[1,1,-1,-1], [1,1,-1,-1], [-1,-1,1,1], [-1,-1,1,1]]
 
-#train for 100 epochs using only quantum calculated negative phase in update rule.
-r.train(simple_data, n_epochs=100, quantum_percentage=1.0, classical_percentage=0.0)
+# #train for 100 epochs using only quantum calculated negative phase in update rule.
+# r.train(simple_data, n_epochs=100, quantum_percentage=1.0, classical_percentage=0.0)
 
-# transorm down to 1 dimension to see how we did.
-print (r.transform(simple_data))
+# # transorm down to 1 dimension to see how we did.
+# print (r.transform(simple_data))
 
