@@ -80,6 +80,7 @@ class qRBM:
 		# Bias[j] = bias on jth hidden.
 
 		self.pred_list = []
+		self.energy_list = []
 
 	def make_unclamped_QAOA(self):
 		"""
@@ -220,8 +221,7 @@ class qRBM:
 					model_expectation = self.vqe_inst.expectation(model_sampling_prog, 
 															sZ(visible_indices[a]) * sZ(hidden_indices[b]),
 															self.n_quantum_measurements,
-															self.qvm)
-
+															self.qvm)                 
 					neg_phase_quantum[a][b] = model_expectation
 			
 			neg_phase_quantum *= (1. / float(len(DATA)))
@@ -289,13 +289,14 @@ class qRBM:
 				myfile.write(json.dumps(list(self.BIAS.tolist()))+'\n')
 				myfile.write(str('-'*80) + '\n')		
 
-			pred = self.transform(DATA)
-			self.pred_list.append(pred)
-
+			self.pred_list.append(self.transform(DATA))
+			self.energy_list.append(self.energy(DATA))
 
 		print ('Training Done!')
 
-
+	def energy(self, DATA):
+		return - np.sum(np.dot(DATA, self.WEIGHTS))
+# 		    
 
 	def transform(self, DATA):
 		"""
